@@ -7,11 +7,11 @@ import { generateOtp } from '../utils/otp';
 import React from "react";
 import { render } from "@react-email/render";
 import OtpEmail from "../emails/OtpEmail";
-
+import WelcomeEmail from "../emails/WelcomeEmail";
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-
+const logoUrl = "http://localhost:5000/images/logo.png";
 export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -105,7 +105,8 @@ export const verifyOtp = async (req: Request, res: Response) => {
     await Otp.deleteOne({ email, otp });
 
    
-    await sendEmail(email, 'Registration Successful', 'Your account has been verified!');
+    const welcomeHtml = await render(<WelcomeEmail name={tempUser.name} logoUrl={logoUrl} />);
+await sendEmail(email, 'Welcome to MyJobb!', welcomeHtml);
 
     res.status(201).json({ message: 'User registered and verified successfully.' });
   } catch (err: any) {
