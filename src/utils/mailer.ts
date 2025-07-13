@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-
+import { render } from "@react-email/render";
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com", 
   port: Number(process.env.SMTP_PORT) || 587,
@@ -10,11 +10,11 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export const sendEmail = async (to: string, subject: string, text: string) => {
+export const sendEmail = async (to: string, subject: string, html: string) => {
   await transporter.sendMail({
-    from: `"Myjobb Aiisko " <${process.env.SMTP_USER}>`,
+    from: `"Your App" <${process.env.SMTP_USER}>`,
     to,
     subject,
-    text
+    html,
   });
 };
