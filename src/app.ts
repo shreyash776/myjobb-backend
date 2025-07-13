@@ -1,3 +1,4 @@
+import path from "path";
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -12,5 +13,6 @@ app.use(errorHandler);
 
 app.use(express.json());
 app.use('/api/users', userRoutes);
+app.use('/images', express.static(path.join(__dirname, '../images')));
 
 export default app;

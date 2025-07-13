@@ -9,7 +9,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS
   }
 });
-
 export const sendEmail = async (to: string, subject: string, html: string) => {
   await transporter.sendMail({
     from: `"Your App" <${process.env.SMTP_USER}>`,

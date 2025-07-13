@@ -4,7 +4,9 @@ import User from '../models/user.model';
 import Otp, { IOtp, ITempUser } from '../models/otp.model';
 import { sendEmail } from '../utils/mailer';
 import { generateOtp } from '../utils/otp';
-
+import React from "react";
+import { render } from "@react-email/render";
+import OtpEmail from "../emails/OtpEmail";
 
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -45,7 +47,8 @@ export const signup = async (req: Request, res: Response) => {
     );
 
     
-    await sendEmail(email, 'Your OTP Code', `Your OTP is: ${otp}`);
+    const emailHtml =await render(<OtpEmail name={name} otp={otp} />);
+await sendEmail(email, "Your OTP Code", emailHtml);
 
     res.status(200).json({ message: 'OTP sent to email.' });
   } catch (err: any) {
