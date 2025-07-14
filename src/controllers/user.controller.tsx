@@ -107,11 +107,16 @@ export const verifyOtp = async (req: Request, res: Response) => {
     const welcomeHtml = await render(<WelcomeEmail name={tempUser.name} logoUrl={logoUrl} />);
     await sendEmail(email, 'Welcome to MyJobb!', welcomeHtml);
 
-    res.status(201).json({
-      message: 'User registered and verified successfully.',
-      token,
-      user: { name: createdUser.name, email: createdUser.email }
-    });
+   res.cookie("auth_token", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 60 * 60 * 1000 
+});
+res.status(201).json({
+  message: 'User registered and verified successfully.',
+  user: { name: createdUser.name, email: createdUser.email }
+});
   } catch (err: any) {
     console.error('Verify OTP error:', err);
     res.status(500).json({ message: 'Internal server error.' });
@@ -155,7 +160,10 @@ export const resendOtp = async (req: Request, res: Response) => {
   }
 };
 
-
+export const logout = async (req: Request, res: Response) => {
+  res.clearCookie("auth_token");
+  res.status(200).json({ message: "Logged out" });
+};
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -179,12 +187,18 @@ export const login = async (req: Request, res: Response) => {
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
+    res.cookie("auth_token", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 60 * 60 * 1000 
+});
+res.status(200).json({
+  message: "Login successful",
+  user: { name: user.name, email: user.email }
+});
 
-    res.status(200).json({
-      message: 'Login successful.',
-      token,
-      user: { name: user.name, email: user.email }
-    });
+    
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Internal server error.' });
