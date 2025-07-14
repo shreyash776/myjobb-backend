@@ -6,10 +6,11 @@ import { errorHandler } from './middlewares/error.middleware';
 import userRoutes from './routes/user.routes';
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { getRecommendations } from "./recommend";
 dotenv.config();
 
 const app = express();
-
+app.use(express.json());
 const allowedOrigins = [
   "http://localhost:3000", 
   "https://myjobb-frontend.vercel.app"
@@ -19,6 +20,18 @@ const corsOptions = {
   credentials: true,
 };
 
+app.post("/api/recommend", async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ message: "Missing query" });
+
+    const recommendations = await getRecommendations(query);
+    res.json({ recommendations });
+  } catch (err) {
+    console.error("Recommendation error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
