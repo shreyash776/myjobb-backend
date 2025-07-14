@@ -20,6 +20,14 @@ const corsOptions = {
   credentials: true,
 };
 
+
+app.use(cookieParser());
+app.use(cors(corsOptions));
+app.use(express.json());
+
+app.use('/api/users', userRoutes);
+
+app.use('/images', express.static(path.join(__dirname, '../images')));
 app.post("/api/recommend", async (req, res) => {
   try {
     const { query } = req.body;
@@ -32,14 +40,6 @@ app.post("/api/recommend", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-app.use(cookieParser());
-app.use(cors(corsOptions));
-app.use(express.json());
-
-app.use('/api/users', userRoutes);
-
-app.use('/images', express.static(path.join(__dirname, '../images')));
-
 // Demo route
 app.get('/demo', (req, res) => {
   res.send('Welcome to MyJob Backend API');
