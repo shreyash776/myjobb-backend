@@ -86,7 +86,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User data not found. Please sign up again.' });
     }
 
-    // Create user
+    
     const createdUser = await User.create({
       name: tempUser.name,
       email: tempUser.email,
@@ -94,32 +94,33 @@ export const verifyOtp = async (req: Request, res: Response) => {
       isVerified: true
     });
 
+   
     await Otp.deleteOne({ email, otp });
 
-    // Generate JWT token
+   
     const token = jwt.sign(
       { userId: createdUser._id, email: createdUser.email },
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
 
-    // Send welcome email
+    
     const welcomeHtml = await render(<WelcomeEmail name={tempUser.name} logoUrl={logoUrl} />);
     await sendEmail(email, 'Welcome to MyJobb!', welcomeHtml);
 
-   res.cookie("auth_token", token, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  maxAge: 60 * 60 * 1000 
-});
-res.status(201).json({
-  message: 'User registered and verified successfully.',
-  user: { name: createdUser.name, email: createdUser.email }
-});
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000 
+    });
+    return res.status(201).json({
+      message: 'User registered and verified successfully.',
+      user: { name: createdUser.name, email: createdUser.email }
+    });
   } catch (err: any) {
     console.error('Verify OTP error:', err);
-    res.status(500).json({ message: 'Internal server error.' });
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 };
 
