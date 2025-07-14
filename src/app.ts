@@ -16,7 +16,7 @@ app.use('/api/users', userRoutes);
 
 app.use('/images', express.static(path.join(__dirname, '../images')));
 //demo route
-app.get('/', (req, res) => {
+app.get('/demo', (req, res) => {
     res.send('Welcome to MyJob Backend API');
     });
 
