@@ -15,7 +15,7 @@ export default function OtpEmail({ name, otp }: OtpEmailProps) {
       <Body style={{ background: "#f4f4f7", fontFamily: "Arial, sans-serif" }}>
         <Container style={{ background: "#fff", margin: "40px auto", padding: "32px", maxWidth: "480px", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
           <Img
-    src="http://localhost:5000/images/logo.png"
+    src="https://myjobb-backend-74wp.onrender.com/images/logo.png"
     alt="Logo"
     width="200"
     height="60"

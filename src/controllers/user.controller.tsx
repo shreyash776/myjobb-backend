@@ -11,7 +11,7 @@ import WelcomeEmail from "../emails/WelcomeEmail";
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-const logoUrl = "http://localhost:5000/images/logo.png";
+const logoUrl = "https://myjobb-backend-74wp.onrender.com/images/logo.png";
 export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
