@@ -97,7 +97,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
    
     await Otp.deleteOne({ email, otp });
 
-   
+   if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not defined');
+}
     const token = jwt.sign(
       { userId: createdUser._id, email: createdUser.email },
       process.env.JWT_SECRET!,
@@ -162,8 +164,13 @@ export const resendOtp = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  res.clearCookie("auth_token");
-  res.status(200).json({ message: "Logged out" });
+  res.clearCookie("auth_token", {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax", 
+  path: "/",
+});
+res.status(200).json({ message: "Logged out" });
 };
 export const login = async (req: Request, res: Response) => {
   try {
@@ -198,8 +205,7 @@ res.status(200).json({
   message: "Login successful",
   user: { name: user.name, email: user.email }
 });
-
-    
+   
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Internal server error.' });
