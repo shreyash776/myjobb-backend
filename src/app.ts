@@ -13,7 +13,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000", 
-  "https://myjobb-frontend.vercel.app/" 
+  "https://myjobb-frontend.vercel.app" 
 ];
 const corsOptions = {
   origin: allowedOrigins,
