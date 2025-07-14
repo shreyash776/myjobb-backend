@@ -4,11 +4,23 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/error.middleware';
 import userRoutes from './routes/user.routes';
+import cors from "cors";
 dotenv.config();
 
 
-
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:3000", 
+  "https://your-production-frontend.com" 
+];
+const corsOptions = {
+  origin: allowedOrigins,
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 app.use(errorHandler);
 
 app.use(express.json());
