@@ -2,11 +2,12 @@
   "name": "myjobb-backend",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev src/server.ts",
-    "build": "tsc"
-  },
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "NODE_OPTIONS='--max-old-space-size=1024' ts-node-dev src/server.ts",
+  "start": "NODE_OPTIONS='--max-old-space-size=1024' node dist/server.js",
+  "build": "tsc"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
