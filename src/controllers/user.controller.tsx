@@ -111,9 +111,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
     await sendEmail(email, 'Welcome to MyJobb!', welcomeHtml);
 
     res.cookie("auth_token", token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 60 * 60 * 1000 
     });
     return res.status(201).json({
@@ -196,9 +196,9 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: "1h" }
     );
     res.cookie("auth_token", token, {
-  httpOnly: true,
+  httpOnly: false,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  sameSite: "none",
   maxAge: 60 * 60 * 1000 
 });
 res.status(200).json({
