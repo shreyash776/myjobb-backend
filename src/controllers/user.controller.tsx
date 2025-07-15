@@ -33,7 +33,7 @@ export const signup = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const otp = generateOtp();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await Otp.findOneAndUpdate(
       { email },
@@ -86,7 +86,6 @@ export const verifyOtp = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User data not found. Please sign up again.' });
     }
 
-    
     const createdUser = await User.create({
       name: tempUser.name,
       email: tempUser.email,
@@ -94,36 +93,70 @@ export const verifyOtp = async (req: Request, res: Response) => {
       isVerified: true
     });
 
-   
     await Otp.deleteOne({ email, otp });
 
-   if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not defined');
-}
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET environment variable is not defined');
+    }
+
     const token = jwt.sign(
       { userId: createdUser._id, email: createdUser.email },
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
 
-    
     const welcomeHtml = await render(<WelcomeEmail name={tempUser.name} logoUrl={logoUrl} />);
     await sendEmail(email, 'Welcome to MyJobb!', welcomeHtml);
 
-    res.cookie("auth_token", token, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 60 * 60 * 1000 
-    });
     return res.status(201).json({
       message: 'User registered and verified successfully.',
-      user: { name: createdUser.name, email: createdUser.email }
+      user: { name: createdUser.name, email: createdUser.email },
+      token // ✅ Include token in response body
     });
   } catch (err: any) {
     console.error('Verify OTP error:', err);
     return res.status(500).json({ message: 'Internal server error.' });
   }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials.' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials.' });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1h" }
+    );
+
+    return res.status(200).json({
+      message: "Login successful",
+      user: { name: user.name, email: user.email },
+      token // ✅ Send token in response body, not cookie
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  // Just return success — no cookie to clear now
+  return res.status(200).json({ message: "Logged out" });
 };
 
 export const resendOtp = async (req: Request, res: Response) => {
@@ -159,55 +192,6 @@ export const resendOtp = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'OTP resent to email.' });
   } catch (err: any) {
     console.error('Resend OTP error:', err);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-};
-
-export const logout = async (req: Request, res: Response) => {
-  res.clearCookie("auth_token", {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax", 
-  path: "/",
-});
-res.status(200).json({ message: "Logged out" });
-};
-export const login = async (req: Request, res: Response) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required.' });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials.' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials.' });
-    }
-
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
-    );
-    res.cookie("auth_token", token, {
-  httpOnly: false,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "none",
-  maxAge: 60 * 60 * 1000 
-});
-res.status(200).json({
-  message: "Login successful",
-  user: { name: user.name, email: user.email }
-});
-   
-  } catch (err) {
-    console.error('Login error:', err);
     res.status(500).json({ message: 'Internal server error.' });
   }
 };

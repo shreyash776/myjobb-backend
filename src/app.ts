@@ -12,24 +12,13 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 const allowedOrigins = [
-  "http://localhost:3000",
-  "https://myjobb-frontend.vercel.app",
+  "http://localhost:3000", 
+  "https://myjobb-frontend.vercel.app"
 ];
-
 const corsOptions = {
-  origin: function (
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void
-  ) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true,
 };
-
 
 
 app.use(cookieParser());
